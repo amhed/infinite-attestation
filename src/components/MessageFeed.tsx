@@ -5,13 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { fetchMessages } from '@/app/actions/messageActions';
-
-interface Message {
-  id: number;
-  content: string;
-  sender: string;
-  blockNumber: number;
-}
+import { Message } from '@/app/models/message';
 
 export default function MessageFeed() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -32,7 +26,7 @@ export default function MessageFeed() {
       setFilteredMessages(messages);
     } else {
       const blockNumber = parseInt(searchTerm);
-      const filtered = messages.filter(message => message.blockNumber === blockNumber);
+      const filtered = messages.filter(message => message.block_number === blockNumber);
       setFilteredMessages(filtered);
     }
   };
@@ -52,11 +46,11 @@ export default function MessageFeed() {
       {filteredMessages.map(message => (
         <Card key={message.id}>
           <CardHeader>
-            <CardTitle>From: {message.sender}</CardTitle>
+            <CardTitle>From: {message.attester}</CardTitle>
           </CardHeader>
           <CardContent>
-            <p>{message.content}</p>
-            <p className="text-sm text-gray-500 mt-2">Block: {message.blockNumber}</p>
+            <p>{message.text}</p>
+            <p className="text-sm text-gray-500 mt-2">Block: {message.block_number}</p>
           </CardContent>
         </Card>
       ))}
