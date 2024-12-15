@@ -1,17 +1,27 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { ethers } from 'ethers'
-import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
-import { toast } from '@/hooks/use-toast'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { useState } from 'react';
+import { ethers } from 'ethers';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { toast } from '@/hooks/use-toast';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  ConnectWallet,
+  Wallet,
+  WalletDefault,
+  WalletDropdown,
+  WalletDropdownBasename,
+  WalletDropdownLink,
+  WalletDropdownDisconnect,
+} from '@coinbase/onchainkit/wallet';
+import { Address, Avatar, Badge, EthBalance, Name, Identity } from '@coinbase/onchainkit/identity';
 
 export default function ComposeMessage() {
-  const [message, setMessage] = useState('')
-  const [isConnected, setIsConnected] = useState(false)
-  const [address, setAddress] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  const [message, setMessage] = useState('');
+  const [isConnected, setIsConnected] = useState(false);
+  const [address, setAddress] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const connectAndSend = async () => {
     if (!message) {
@@ -19,54 +29,54 @@ export default function ComposeMessage() {
         title: 'Empty Message',
         description: 'Please enter a message to send.',
         variant: 'destructive',
-      })
-      return
+      });
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
       if (!isConnected) {
         if (typeof window.ethereum === 'undefined') {
-          throw new Error('Ethereum provider not found. Please install MetaMask.')
+          throw new Error('Ethereum provider not found. Please install MetaMask.');
         }
 
-        await window.ethereum.request({ method: 'eth_requestAccounts' })
-        const provider = new ethers.providers.Web3Provider(window.ethereum)
-        const signer = provider.getSigner()
-        const connectedAddress = await signer.getAddress()
-        setAddress(connectedAddress)
-        setIsConnected(true)
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+        const connectedAddress = await signer.getAddress();
+        setAddress(connectedAddress);
+        setIsConnected(true);
 
         toast({
           title: 'Wallet Connected',
           description: `Connected with address: ${connectedAddress}`,
-        })
+        });
       }
 
       // Here you would typically interact with a smart contract to send the message
       // For this example, we'll just simulate sending the message
-      console.log('Sending message:', message)
+      console.log('Sending message:', message);
 
       // Simulate blockchain delay
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
       toast({
         title: 'Message Sent',
         description: 'Your message has been sent to the Ethereum network.',
-      })
-      setMessage('')
+      });
+      setMessage('');
     } catch (error) {
-      console.error('Failed to connect wallet or send message:', error)
+      console.error('Failed to connect wallet or send message:', error);
       toast({
         title: 'Operation Failed',
         description: error instanceof Error ? error.message : 'An unknown error occurred.',
         variant: 'destructive',
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <Card>
@@ -85,10 +95,25 @@ export default function ComposeMessage() {
         />
       </CardContent>
       <CardFooter>
-        <Button onClick={connectAndSend} disabled={isLoading} className="w-full">
+        {/* <Button onClick={connectAndSend} disabled={isLoading} className="w-full">
           {isLoading ? 'Processing...' : isConnected ? 'Send Message' : 'Connect Wallet & Send'}
-        </Button>
+        </Button> */}
+        <Wallet>
+          <ConnectWallet>
+            <Avatar className="h-6 w-6" />
+            <Name />
+          </ConnectWallet>
+          <WalletDropdown>
+            <Identity className="px-4 pt-3 pb-2" hasCopyAddressOnClick>
+              <Avatar />
+              <Name />
+              <Address />
+              <EthBalance />
+            </Identity>
+            <WalletDropdownDisconnect />
+          </WalletDropdown>
+        </Wallet>
       </CardFooter>
     </Card>
-  )
+  );
 }
