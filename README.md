@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Full-Stack Ethereum DApp
 
-## Getting Started
+This project combines a Next.js frontend with Foundry-managed smart contracts.
 
-First, run the development server:
+## Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Node.js 16+ and Yarn
+- Foundry (forge, anvil, and cast)
+
+## Project Structure
+
+```
+├── src/                # Next.js frontend source code
+├── contracts/          # Solidity smart contracts
+│   ├── src/           # Contract source files
+│   ├── test/          # Contract test files
+│   └── script/        # Contract deployment scripts
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Quick Start
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Install frontend dependencies:
+```bash
+yarn install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. Install Foundry dependencies:
+```bash
+cd contracts && forge install && cd ..
+```
 
-## Learn More
+3. Start local blockchain:
+```bash
+anvil
+```
 
-To learn more about Next.js, take a look at the following resources:
+4. In a new terminal, compile and deploy contracts:
+```bash
+cd contracts
+forge build
+forge script script/Counter.s.sol:CounterScript --rpc-url http://localhost:8545 --broadcast
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+5. Start the frontend:
+```bash
+yarn dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Visit `http://localhost:3000` to see your app.
 
-## Deploy on Vercel
+## Development
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Frontend: `yarn dev` - Starts Next.js development server
+- Contracts: `forge test` - Runs contract tests
+- Local blockchain: `anvil` - Starts local Ethereum node

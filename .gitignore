@@ -39,3 +39,18 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Foundry
+contracts/cache/
+contracts/out/
+contracts/broadcast/
+contracts/.env
+
+# Coverage
+coverage
+coverage.json
+lcov.info
+
+# Hardhat files
+cache/
+artifacts/
