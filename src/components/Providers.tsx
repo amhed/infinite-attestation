@@ -14,7 +14,7 @@ export function Providers(props: { children: ReactNode }) {
           name: 'Infinity.oo', // Displayed in modal header
           logo: '/images/infinity_notepad.png', // Displayed in modal header
           mode: 'auto', // 'light' | 'dark' | 'auto'
-          theme: 'default', // 'default' or custom theme
+          theme: 'base',
         },
         wallet: {
           display: 'modal',

@@ -1,27 +1,19 @@
 'use client';
 
+import { useAccount } from 'wagmi';
 import { useState } from 'react';
 import { ethers } from 'ethers';
-import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  ConnectWallet,
-  Wallet,
-  WalletDefault,
-  WalletDropdown,
-  WalletDropdownBasename,
-  WalletDropdownLink,
-  WalletDropdownDisconnect,
-} from '@coinbase/onchainkit/wallet';
-import { Address, Avatar, Badge, EthBalance, Name, Identity } from '@coinbase/onchainkit/identity';
+import { Button } from './ui/button';
 
 export default function ComposeMessage() {
   const [message, setMessage] = useState('');
   const [isConnected, setIsConnected] = useState(false);
   const [address, setAddress] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const account = useAccount();
 
   const connectAndSend = async () => {
     if (!message) {
@@ -83,7 +75,7 @@ export default function ComposeMessage() {
       <CardHeader>
         <CardTitle>Compose Message</CardTitle>
         <CardDescription>
-          {isConnected ? `Connected: ${address}` : 'Connect your wallet and send a message to the Ethereum network.'}
+          {isConnected ? `Connected: ${address}` : 'Connect your wallet to attest any message onchain.'}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -95,24 +87,13 @@ export default function ComposeMessage() {
         />
       </CardContent>
       <CardFooter>
-        {/* <Button onClick={connectAndSend} disabled={isLoading} className="w-full">
-          {isLoading ? 'Processing...' : isConnected ? 'Send Message' : 'Connect Wallet & Send'}
-        </Button> */}
-        <Wallet>
-          <ConnectWallet>
-            <Avatar className="h-6 w-6" />
-            <Name />
-          </ConnectWallet>
-          <WalletDropdown>
-            <Identity className="px-4 pt-3 pb-2" hasCopyAddressOnClick>
-              <Avatar />
-              <Name />
-              <Address />
-              <EthBalance />
-            </Identity>
-            <WalletDropdownDisconnect />
-          </WalletDropdown>
-        </Wallet>
+        {account?.address && (
+          <>
+            <Button size="lg" onClick={connectAndSend} disabled={isLoading}>
+              {isLoading ? 'Processing...' : isConnected ? 'Send Message' : 'Attest'}
+            </Button>
+          </>
+        )}
       </CardFooter>
     </Card>
   );
