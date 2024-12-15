@@ -20,21 +20,25 @@ This project combines a Next.js frontend with Foundry-managed smart contracts.
 ## Quick Start
 
 1. Install frontend dependencies:
+
 ```bash
 yarn install
 ```
 
 2. Install Foundry dependencies:
+
 ```bash
 cd contracts && forge install && cd ..
 ```
 
 3. Start local blockchain:
+
 ```bash
 anvil
 ```
 
 4. In a new terminal, compile and deploy contracts:
+
 ```bash
 cd contracts
 forge build
@@ -42,6 +46,7 @@ forge script script/Counter.s.sol:CounterScript --rpc-url http://localhost:8545 
 ```
 
 5. Start the frontend:
+
 ```bash
 yarn dev
 ```

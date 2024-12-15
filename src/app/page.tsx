@@ -1,6 +1,6 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import MessageFeed from "@/components/MessageFeed"
-import ComposeMessage from "@/components/ComposeMessage"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import MessageFeed from '@/components/MessageFeed'
+import ComposeMessage from '@/components/ComposeMessage'
 
 export default function Home() {
   return (
@@ -21,4 +21,3 @@ export default function Home() {
     </div>
   )
 }
-

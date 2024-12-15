@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test:contracts": "cd contracts && forge test -vv"
+    "test:contracts": "cd contracts && forge test -vv",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint:fix": "eslint --fix ."
   },
   "dependencies": {
     "@metamask/providers": "^18.2.0",
@@ -27,12 +30,19 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@next/eslint-plugin-next": "^15.1.0",
     "@types/node": "^20",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.2",
-    "eslint": "^9",
+    "@typescript-eslint/eslint-plugin": "^8.18.0",
+    "@typescript-eslint/parser": "^8.18.0",
+    "eslint": "^9.17.0",
     "eslint-config-next": "15.1.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react": "^7.37.2",
+    "eslint-plugin-react-hooks": "^5.1.0",
     "postcss": "^8",
+    "prettier": "^3.4.2",
     "typescript": "^5"
   },
   "packageManager": "yarn@4.5.2+sha512.570504f67349ef26d2d86a768dc5ec976ead977aa086b0bb4237e97d5db7ae5c620f9f0e0edf3ea5047205063faff102bf2a2d778664a94eaaa1085ad483fe2e"
