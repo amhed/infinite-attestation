@@ -1,19 +1,23 @@
 'use client';
 
-import { useAccount } from 'wagmi';
+import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
+import { base } from 'wagmi/chains';
+
 import { useState } from 'react';
-import { ethers } from 'ethers';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from './ui/button';
+import { INFINITE_ATTEST_ABI, INFINITE_ATTEST_ADDRESS } from '@/config/contracts';
 
 export default function ComposeMessage() {
   const [message, setMessage] = useState('');
-  const [isConnected, setIsConnected] = useState(false);
-  const [address, setAddress] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [txHash, setTxHash] = useState<string>('');
+  const [txStatus, setTxStatus] = useState<'idle' | 'pending' | 'mining' | 'success' | 'error'>('idle');
   const account = useAccount();
+  const { data: walletClient } = useWalletClient();
+  const publicClient = usePublicClient();
 
   const connectAndSend = async () => {
     if (!message) {
@@ -25,41 +29,55 @@ export default function ComposeMessage() {
       return;
     }
 
+    if (!walletClient) {
+      toast({
+        title: 'Wallet Not Connected',
+        description: 'Please connect your wallet first.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (walletClient.chain.id !== base.id) {
+      toast({
+        title: 'Wrong Network',
+        description: 'Please switch to Base network in your wallet.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsLoading(true);
+    setTxStatus('pending');
 
     try {
-      if (!isConnected) {
-        if (typeof window.ethereum === 'undefined') {
-          throw new Error('Ethereum provider not found. Please install MetaMask.');
-        }
+      const hash = await walletClient.writeContract({
+        address: INFINITE_ATTEST_ADDRESS,
+        abi: INFINITE_ATTEST_ABI,
+        functionName: 'attest',
+        args: [message],
+      });
 
-        await window.ethereum.request({ method: 'eth_requestAccounts' });
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const signer = provider.getSigner();
-        const connectedAddress = await signer.getAddress();
-        setAddress(connectedAddress);
-        setIsConnected(true);
-
-        toast({
-          title: 'Wallet Connected',
-          description: `Connected with address: ${connectedAddress}`,
-        });
-      }
-
-      // Here you would typically interact with a smart contract to send the message
-      // For this example, we'll just simulate sending the message
-      console.log('Sending message:', message);
-
-      // Simulate blockchain delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      setTxStatus('mining');
+      setTxHash(hash);
 
       toast({
-        title: 'Message Sent',
-        description: 'Your message has been sent to the Ethereum network.',
+        title: 'Transaction Sent',
+        description: `Transaction hash: ${hash}`,
       });
+
+      await publicClient.waitForTransactionReceipt({ hash });
+
+      setTxStatus('success');
+      toast({
+        title: 'Message Attested',
+        description: 'Your message has been successfully attested on-chain.',
+      });
+
       setMessage('');
     } catch (error) {
-      console.error('Failed to connect wallet or send message:', error);
+      console.error('Failed to send message:', error);
+      setTxStatus('error');
       toast({
         title: 'Operation Failed',
         description: error instanceof Error ? error.message : 'An unknown error occurred.',
@@ -75,8 +93,9 @@ export default function ComposeMessage() {
       <CardHeader>
         <CardTitle>Compose Message</CardTitle>
         <CardDescription>
-          {isConnected ? `Connected: ${address}` : 'Connect your wallet to attest any message onchain.'}
+          {account.address ? `Connected: ${account.address}` : 'Connect your wallet to attest any message onchain.'}
         </CardDescription>
+        <CardDescription>Chain Id: {account.chainId}</CardDescription>
       </CardHeader>
       <CardContent>
         <Textarea
@@ -89,9 +108,23 @@ export default function ComposeMessage() {
       <CardFooter>
         {account?.address && (
           <>
-            <Button size="lg" onClick={connectAndSend} disabled={isLoading}>
-              {isLoading ? 'Processing...' : isConnected ? 'Send Message' : 'Attest'}
+            <Button size="lg" onClick={connectAndSend} disabled={isLoading || txStatus === 'mining'}>
+              {txStatus === 'mining'
+                ? 'Confirming...'
+                : txStatus === 'pending'
+                  ? 'Confirm in Wallet...'
+                  : 'Attest Message'}
             </Button>
+            {txHash && (
+              <a
+                href={`https://sepolia.etherscan.io/tx/${txHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-4 text-sm text-blue-500 hover:underline"
+              >
+                View Transaction
+              </a>
+            )}
           </>
         )}
       </CardFooter>
