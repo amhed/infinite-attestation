@@ -1,6 +1,6 @@
 'use client';
 
-import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
+import { useAccount, useWriteContract } from 'wagmi';
 import { base } from 'wagmi/chains';
 
 import { useState } from 'react';
@@ -15,9 +15,8 @@ export default function ComposeMessage() {
   const [isLoading, setIsLoading] = useState(false);
   const [txHash, setTxHash] = useState<string>('');
   const [txStatus, setTxStatus] = useState<'idle' | 'pending' | 'mining' | 'success' | 'error'>('idle');
-  const account = useAccount();
-  const { data: walletClient } = useWalletClient();
-  const publicClient = usePublicClient();
+
+  const { writeContract, data: txResponse } = useWriteContract();
 
   const connectAndSend = async () => {
     if (!message) {
@@ -29,29 +28,13 @@ export default function ComposeMessage() {
       return;
     }
 
-    if (!walletClient) {
-      toast({
-        title: 'Wallet Not Connected',
-        description: 'Please connect your wallet first.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (walletClient.chain.id !== base.id) {
-      toast({
-        title: 'Wrong Network',
-        description: 'Please switch to Base network in your wallet.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
     setIsLoading(true);
     setTxStatus('pending');
 
+    console.log('txResponse', txResponse);
+
     try {
-      const hash = await walletClient.writeContract({
+      await writeContract({
         address: INFINITE_ATTEST_ADDRESS,
         abi: INFINITE_ATTEST_ABI,
         functionName: 'attest',
@@ -59,14 +42,11 @@ export default function ComposeMessage() {
       });
 
       setTxStatus('mining');
-      setTxHash(hash);
 
-      toast({
-        title: 'Transaction Sent',
-        description: `Transaction hash: ${hash}`,
-      });
-
-      await publicClient.waitForTransactionReceipt({ hash });
+      // toast({
+      //   title: 'Transaction Sent',
+      //   description: `Transaction hash: ${hash}`,
+      // });
 
       setTxStatus('success');
       toast({
