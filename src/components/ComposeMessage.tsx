@@ -1,6 +1,6 @@
 'use client';
 
-import { useAccount, useWriteContract } from 'wagmi';
+import { useAccount, useWriteContract, useSwitchChain } from 'wagmi';
 import { base } from 'wagmi/chains';
 
 import { useState } from 'react';
@@ -15,7 +15,7 @@ export default function ComposeMessage() {
   const [isLoading, setIsLoading] = useState(false);
   const [txHash, setTxHash] = useState<string>('');
   const [txStatus, setTxStatus] = useState<'idle' | 'pending' | 'mining' | 'success' | 'error'>('idle');
-
+  const account = useAccount();
   const { writeContract, data: txResponse } = useWriteContract();
 
   const connectAndSend = async () => {
